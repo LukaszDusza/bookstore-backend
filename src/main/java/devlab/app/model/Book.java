@@ -1,16 +1,16 @@
 package devlab.app.model;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
-@Data
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Table(name="books")
 public class Book {
 
@@ -22,4 +22,15 @@ public class Book {
     private String isbn;
     private String author;
 
+    @ManyToOne(cascade= {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinColumn(name = "fk_category")
+    private Category category;
+
+
+//    public Book(String title, String isbn, String author, Category category) {
+//        this.title = title;
+//        this.isbn = isbn;
+//        this.author = author;
+//        this.category = category;
+//    }
 }

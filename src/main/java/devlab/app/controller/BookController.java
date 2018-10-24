@@ -3,6 +3,7 @@ package devlab.app.controller;
 
 import devlab.app.model.Book;
 import devlab.app.repository.BookRepository;
+import devlab.app.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +18,12 @@ public class BookController {
 
 
     private BookRepository bookRepository;
+    private CategoryRepository categoryRepository;
 
     @Autowired /*nie wymagane*/
-    public BookController(BookRepository bookRepository) {
+    public BookController(BookRepository bookRepository, CategoryRepository categoryRepository) {
         this.bookRepository = bookRepository;
+        this.categoryRepository = categoryRepository;
     }
 
         @GetMapping("books")
@@ -29,13 +32,29 @@ public class BookController {
     }
 
     @PostMapping("books")
-    public ResponseEntity<Book> addBook(@RequestBody Book book) {
+    public ResponseEntity<Book> addBook(
+            @RequestParam(value = "category") String category,
+            @RequestParam(value = "title") String title,
+            @RequestParam(value = "author") String author,
+            @RequestParam(value = "isbn") String isbn ) {
 
-        if (bookRepository.findByIsbn(book.getIsbn()).isPresent()) {
-            return new ResponseEntity<>(book, HttpStatus.CONFLICT);
+        if (bookRepository.findByIsbn(isbn).isPresent()) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+
+        } else if (categoryRepository.findByTitle(category).isPresent()){
+
+            //tworzenie oddzielnego konstruktora pod ten przypadek nie będzie wymagane.
+            Book book = new Book();
+            book.setTitle(title);
+            book.setAuthor(author);
+            book.setIsbn(isbn);
+            book.setCategory(categoryRepository.findByTitle(category).get());
+
+            return new ResponseEntity<>(bookRepository.save(book), HttpStatus.OK);
         }
-        return new ResponseEntity<>(bookRepository.save(book), HttpStatus.OK);
+           return new ResponseEntity<>(HttpStatus.CONFLICT);
     }
+
 
     @DeleteMapping("books/{isbn}")
     public ResponseEntity<Book> deleteBook(@PathVariable("isbn") String isbn) {
@@ -48,6 +67,5 @@ public class BookController {
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
 
 }
