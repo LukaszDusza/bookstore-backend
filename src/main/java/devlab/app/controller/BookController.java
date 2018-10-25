@@ -39,7 +39,7 @@ public class BookController {
             @RequestParam(value = "isbn") String isbn ) {
 
         if (bookRepository.findByIsbn(isbn).isPresent()) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+            return new ResponseEntity<>( HttpStatus.CONFLICT);
 
         } else if (categoryRepository.findByTitle(category).isPresent()){
 
