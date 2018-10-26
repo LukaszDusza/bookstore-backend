@@ -32,7 +32,7 @@ public class BookController {
     }
 
     @PostMapping("books")
-    public ResponseEntity<Book> addBook(
+    public ResponseEntity<Book> addBook (
             @RequestParam(value = "category") String category,
             @RequestParam(value = "title") String title,
             @RequestParam(value = "author") String author,
@@ -55,6 +55,20 @@ public class BookController {
            return new ResponseEntity<>(HttpStatus.CONFLICT);
     }
 
+    @PutMapping("books")
+    public ResponseEntity<Book> updateBook(@RequestParam String isbn, @RequestBody Book book) {
+        Optional<Book> bookOptional = bookRepository.findByIsbn(isbn);
+
+        if (bookOptional.isPresent()) {
+            bookOptional.get().setTitle(book.getTitle());
+            bookOptional.get().setAuthor(book.getAuthor());
+            bookOptional.get().setIsbn(book.getIsbn());
+            //  bookOptional.get().setId(book.getId()); /*nie poprawnie*/
+
+            return new ResponseEntity<>(bookRepository.save(bookOptional.get()), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 
     @DeleteMapping("books/{isbn}")
     public ResponseEntity<Book> deleteBook(@PathVariable("isbn") String isbn) {

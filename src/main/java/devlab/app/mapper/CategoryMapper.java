@@ -29,9 +29,6 @@ public class CategoryMapper implements Mapper<Category, CategoryDto> {
                 books
         );
 
-//        return new CategoryDto(
-//                from.getTitle()
-//        );
    }
 
     private enum BooksToString implements Function<Book, String> {
