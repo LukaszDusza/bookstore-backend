@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
+@CrossOrigin
 @RestController
 @RequestMapping("/api/v1/")
 public class BookControllerDto {
@@ -40,7 +40,7 @@ public class BookControllerDto {
         List<Book> books = bookRepository.findAll();
         List<BookDto> booksDto = new ArrayList<>();
 
-        books.forEach(book -> System.out.println(book.getAuthor()));
+       // books.forEach(book -> System.out.println(book.getAuthor()));
 
         for (Book b : books) {
             //  BookDto bookDto = mapper.map(b);
@@ -84,7 +84,7 @@ public class BookControllerDto {
 
         if (categoryOpt.isPresent()) {
             List<Book> books = bookRepository.findBooksByCategoryId(categoryOpt.get().getId());
-            List<BookDto> bookDtos= new ArrayList<>();
+            List<BookDto> bookDtos = new ArrayList<>();
 
             books.forEach(book -> {
                 BookDto bookDto = mapper.map(book);
@@ -120,24 +120,31 @@ public class BookControllerDto {
     }
 
     @PutMapping("books")
-    public ResponseEntity<Book> updateBook(@RequestParam String isbn, @RequestBody BookDto bookDto) {
+    public ResponseEntity<Book> updateBook(@RequestParam("isbn") String isbn, @RequestBody BookDto bookDto) {
 
-        Optional<Book> bookOpt = bookRepository.findByIsbn(isbn);
+        Optional<Category> categoryOptional = categoryRepository.findByTitle(bookDto.getCategory());
 
-        if (bookOpt.isPresent()) {
+        if (categoryOptional.isPresent()) {
 
-            bookOpt.get().setTitle(bookDto.getTitle());
-            bookOpt.get().setAuthor(bookDto.getAuthor());
-            bookOpt.get().setIsbn(bookDto.getIsbn());
-            bookRepository.save(bookOpt.get());
+            Optional<Book> bookOpt = bookRepository.findByIsbn(isbn);
 
-            return new ResponseEntity<>(HttpStatus.OK);
+            if (bookOpt.isPresent()) {
+
+                bookOpt.get().setTitle(bookDto.getTitle());
+                bookOpt.get().setAuthor(bookDto.getAuthor());
+                bookOpt.get().setIsbn(bookDto.getIsbn());
+                bookOpt.get().setCategory(categoryOptional.get());
+                bookRepository.save(bookOpt.get());
+
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("books/{isbn}")
-    public ResponseEntity<Book> deleteBook(@PathVariable("isbn") String isbn) {
+
+    @DeleteMapping("books")
+    public ResponseEntity<Book> deleteBook(@RequestParam("isbn") String isbn) {
 
         Optional<Book> bookOptional = bookRepository.findByIsbn(isbn);
 

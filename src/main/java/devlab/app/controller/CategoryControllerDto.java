@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/v1/")
 public class CategoryControllerDto {
@@ -70,7 +71,7 @@ public class CategoryControllerDto {
     }
 
     @DeleteMapping("categories")
-    public ResponseEntity<Category> deleteBook(@RequestParam("category") String category) {
+    public ResponseEntity<Category> deleteCategory(@RequestParam("category") String category) {
 
         Optional<Category> categoryOptional = categoryRepository.findByTitle(category);
 
