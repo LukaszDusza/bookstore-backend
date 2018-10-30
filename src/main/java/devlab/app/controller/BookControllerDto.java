@@ -64,18 +64,18 @@ public class BookControllerDto {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping("books/{author}")
-    public ResponseEntity<BookDto> getBookByAuthor(@RequestParam(value = "author") String author) {
-
-        Optional<Book> bookOpt = bookRepository.findByAuthor(author);
-
-        if (bookOpt.isPresent()) {
-            BookDto bookDto = mapper.map(bookOpt.get());
-
-            return new ResponseEntity<>(bookDto, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
+//    @GetMapping("books/{author}")
+//    public ResponseEntity<List<BookDto> getBookByAuthor(@RequestParam(value = "author") String author) {
+//
+//        Optional<Book> bookOpt = bookRepository.findByAuthor(author);
+//
+//        if (bookOpt.isPresent()) {
+//            BookDto bookDto = mapper.map(bookOpt.get());
+//
+//            return new ResponseEntity<>(bookDto, HttpStatus.OK);
+//        }
+//        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//    }
 
     @GetMapping("books/{category}")
     public ResponseEntity<List<BookDto>> getBooksByCategory(@RequestParam(value = "category") String category) {
