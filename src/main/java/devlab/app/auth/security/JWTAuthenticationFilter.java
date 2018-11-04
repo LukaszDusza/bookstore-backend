@@ -61,14 +61,24 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withExpiresAt(new Date(System.currentTimeMillis() + Constans.EXPIRATION_TIME))
                 .sign(Algorithm.HMAC512(Constans.SECRET.getBytes()));
 
+     //   if (request.getMethod().equals("OPTIONS")) {
+     //       response.setHeader("Access-Control-Allow-Origin", "*");
+      //      response.addHeader("Access-Control-Allow-Origin-Methods", "GET, POST, OPTIONS");
+     //       response.addHeader("Access-Control-Allow-Headers", "Authorization, Content-Range, Content-Disposition, Content-Description,Origin, X-Requested-With");
+      //      response.addHeader("Access-Control-Expose-Headers", "*");
+      //      response.addHeader("Access-Control-Allow-Credentials", "true");
+      //      response.addHeader("Access-Control-Max-Age", "4800");
+    //    }
+
         response.addHeader("access-control-expose-headers", "Authorization");
 
         response.addHeader(Constans.AUTH_HEADER, Constans.TOKEN_PREFIX + token);
-        response.addHeader("UserApp", ((User) auth.getPrincipal()).getUsername());
+//        response.addHeader("UserApp", ((User) auth.getPrincipal()).getUsername());
+//        response.addHeader("Access-Control-Allow-Origin","*");
+//        response.addHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS");
+//        response.addHeader("Access-Control-Allow-Headers", "Origin, Content-Type, X-Auth-Token");
 
         System.out.println(Constans.TOKEN_PREFIX + token);
-
-        System.out.println(JWT.decode(token).getPayload());
 
         //  response.addCookie(new Cookie("Ciasteczko", "Moje_pyszne_ciasteczko"));
         //  response.sendRedirect("http://www.wp.pl");

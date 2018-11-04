@@ -4,6 +4,7 @@ public class Constans {
     public static final String INDEX = "/";
     public static final String SIGN_UP_URL = "/users/sign";
     public static final String SWAGGER = "/swagger-ui.html/**";
+    public static final String LOGIN = "/login**";
 
     public static final int EXPIRATION_TIME = 432000000; //5 days
     public static final String SECRET = "SecretKay";

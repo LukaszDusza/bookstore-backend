@@ -9,12 +9,13 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import static devlab.app.auth.security.Constans.INDEX;
 import static devlab.app.auth.security.Constans.SIGN_UP_URL;
 import static devlab.app.auth.security.Constans.SWAGGER;
 
-
+@CrossOrigin
 @EnableWebSecurity
 public class WebSecurity extends WebSecurityConfigurerAdapter {
 

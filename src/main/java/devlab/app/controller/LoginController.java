@@ -23,9 +23,9 @@ public class LoginController {
 //
 //    }
 
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public String echo( @AuthenticationPrincipal final UserDetails user) {
-        return "Hello " + user.getUsername() + ",  " + user.getAuthorities().iterator().next();
-    }
+//    @RequestMapping(value = "/login", method = RequestMethod.GET)
+//    public String echo( @AuthenticationPrincipal final UserDetails user) {
+//        return "Hello " + user.getUsername() + ",  " + user.getAuthorities().iterator().next();
+//    }
 
 }

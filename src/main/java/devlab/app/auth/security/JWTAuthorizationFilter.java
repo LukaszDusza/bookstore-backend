@@ -21,15 +21,22 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
     }
 
     @Override
-    protected void doFilterInternal (
+    protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
-            FilterChain chain ) throws IOException, ServletException {
+            FilterChain chain) throws IOException, ServletException {
 
         String header = request.getHeader(Constans.AUTH_HEADER);
 
-        if(header == null || !header.startsWith(Constans.TOKEN_PREFIX)) {
-            chain.doFilter(request, response);
+//        response.addHeader("Access-Control-Allow-Origin", "*");
+//        response.addHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+//        response.addHeader("Access-Control-Allow-Credentials", "true");
+//        response.addHeader("Access-Control-Allow-Headers",
+//                "content-type, x-gwt-module-base, x-gwt-permutation, clientid, longpush");
+
+
+        if (header == null || !header.startsWith(Constans.TOKEN_PREFIX)) {
+                chain.doFilter(request, response);
 
             return;
         }
@@ -37,6 +44,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         UsernamePasswordAuthenticationToken authenticationToken = getAuthentication(request);
 
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
         chain.doFilter(request, response);
 
     }
@@ -45,7 +53,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
         String token = request.getHeader(Constans.AUTH_HEADER);
 
-        if(token != null) {
+        if (token != null) {
             String userToken = JWT.require(Algorithm.HMAC512(Constans.SECRET.getBytes()))
                     .build()
                     .verify(token.replace(Constans.TOKEN_PREFIX, ""))
