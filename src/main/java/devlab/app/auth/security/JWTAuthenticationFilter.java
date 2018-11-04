@@ -61,13 +61,17 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withExpiresAt(new Date(System.currentTimeMillis() + Constans.EXPIRATION_TIME))
                 .sign(Algorithm.HMAC512(Constans.SECRET.getBytes()));
 
-        //    response.addHeader("access-control-expose-headers", "Authorization");
+        response.addHeader("access-control-expose-headers", "Authorization");
 
         response.addHeader(Constans.AUTH_HEADER, Constans.TOKEN_PREFIX + token);
         response.addHeader("UserApp", ((User) auth.getPrincipal()).getUsername());
 
-        response.addCookie(new Cookie("Ciasteczko", "Moje_pyszne_ciasteczko"));
-      //  response.sendRedirect("http://www.wp.pl");
+        System.out.println(Constans.TOKEN_PREFIX + token);
+
+        System.out.println(JWT.decode(token).getPayload());
+
+        //  response.addCookie(new Cookie("Ciasteczko", "Moje_pyszne_ciasteczko"));
+        //  response.sendRedirect("http://www.wp.pl");
 
     }
 
