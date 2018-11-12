@@ -1,5 +1,6 @@
 package devlab.app.auth.User;
 
+import devlab.app.model.UserApp;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

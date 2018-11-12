@@ -3,7 +3,7 @@ package devlab.app.auth.security;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import devlab.app.auth.User.UserApp;
+import devlab.app.model.UserApp;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -13,13 +13,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-
+import static devlab.app.auth.security.Constans.*;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -50,7 +49,8 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 
     @Override
-    protected void successfulAuthentication(
+    protected void successfulAuthentication (
+
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain chain,
@@ -58,30 +58,28 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         String token = JWT.create().withSubject(
                 ((User) auth.getPrincipal()).getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + Constans.EXPIRATION_TIME))
-                .sign(Algorithm.HMAC512(Constans.SECRET.getBytes()));
+                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .sign(Algorithm.HMAC512(SECRET.getBytes()));
 
-     //   if (request.getMethod().equals("OPTIONS")) {
-     //       response.setHeader("Access-Control-Allow-Origin", "*");
-      //      response.addHeader("Access-Control-Allow-Origin-Methods", "GET, POST, OPTIONS");
-     //       response.addHeader("Access-Control-Allow-Headers", "Authorization, Content-Range, Content-Disposition, Content-Description,Origin, X-Requested-With");
-      //      response.addHeader("Access-Control-Expose-Headers", "*");
-      //      response.addHeader("Access-Control-Allow-Credentials", "true");
-      //      response.addHeader("Access-Control-Max-Age", "4800");
-    //    }
 
-        response.addHeader("access-control-expose-headers", "Authorization");
+//        response.setHeader("Access-Control-Allow-Origin", "*");
+//        response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT");
+//        response.setHeader("Access-Control-Max-Age", "3600");
+//        response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept, x-requested-with, Cache-Control");
 
-        response.addHeader(Constans.AUTH_HEADER, Constans.TOKEN_PREFIX + token);
-//        response.addHeader("UserApp", ((User) auth.getPrincipal()).getUsername());
-//        response.addHeader("Access-Control-Allow-Origin","*");
-//        response.addHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS");
-//        response.addHeader("Access-Control-Allow-Headers", "Origin, Content-Type, X-Auth-Token");
 
-        System.out.println(Constans.TOKEN_PREFIX + token);
+        response.setHeader(AUTH_HEADER, TOKEN_PREFIX + token);
+        response.setHeader("access-control-expose-headers", AUTH_HEADER);
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT");
+        response.setHeader("Access-Control-Max-Age", "3600");
+        response.setHeader(
+                "Access-Control-Allow-Headers",
+                "*"); //Origin, Accept, Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With
 
-        //  response.addCookie(new Cookie("Ciasteczko", "Moje_pyszne_ciasteczko"));
-        //  response.sendRedirect("http://www.wp.pl");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+
+        System.out.println(TOKEN_PREFIX + token);
 
     }
 

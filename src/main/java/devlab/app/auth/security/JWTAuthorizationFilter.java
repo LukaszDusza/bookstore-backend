@@ -9,16 +9,19 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.*;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
+
 
     public JWTAuthorizationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
     }
+
 
     @Override
     protected void doFilterInternal(
@@ -28,27 +31,23 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
         String header = request.getHeader(Constans.AUTH_HEADER);
 
-//        response.addHeader("Access-Control-Allow-Origin", "*");
-//        response.addHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-//        response.addHeader("Access-Control-Allow-Credentials", "true");
-//        response.addHeader("Access-Control-Allow-Headers",
-//                "content-type, x-gwt-module-base, x-gwt-permutation, clientid, longpush");
-
+        getHeadersInfo(request);
 
         if (header == null || !header.startsWith(Constans.TOKEN_PREFIX)) {
-                chain.doFilter(request, response);
 
-            return;
+            chain.doFilter(request, response);
+
+        } else {
+
+            UsernamePasswordAuthenticationToken authenticationToken = getAuthentication(request); //decompile token
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            chain.doFilter(request, response);
         }
-
-        UsernamePasswordAuthenticationToken authenticationToken = getAuthentication(request);
-
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
-        chain.doFilter(request, response);
 
     }
 
+
+    //private method //decompile token
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
 
         String token = request.getHeader(Constans.AUTH_HEADER);
@@ -59,9 +58,6 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
                     .verify(token.replace(Constans.TOKEN_PREFIX, ""))
                     .getSubject();
 
-            System.out.println(userToken); //wyswietli username
-
-
             if (userToken != null) {
                 return new UsernamePasswordAuthenticationToken(userToken, null, new ArrayList<>());
             }
@@ -71,6 +67,24 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         }
 
         return null;
+    }
+
+    private Map<String, String> getHeadersInfo(HttpServletRequest request) {
+
+        Map<String, String> map = new HashMap<>();
+
+        Enumeration headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+
+            String key = headerNames.nextElement().toString();
+            String value = request.getHeader(key);
+            map.put(key, value);
+        }
+
+        System.out.println();
+        map.forEach((k, v) -> System.out.println(k + ": " + v));
+
+        return map;
     }
 
 }

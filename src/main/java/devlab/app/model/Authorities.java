@@ -8,7 +8,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
-//@Entity
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -16,6 +16,9 @@ import javax.persistence.*;
 @Table(name = "authorities")
 public class Authorities {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String authority;
-    private String username;
+    private int user_id;
 }

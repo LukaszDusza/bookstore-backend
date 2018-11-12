@@ -1,21 +1,27 @@
 package devlab.app.controller;
 
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import devlab.app.dto.BookDto;
 import devlab.app.mapper.BookMapper;
 import devlab.app.model.Book;
 import devlab.app.model.Category;
 import devlab.app.repository.BookRepository;
 import devlab.app.repository.CategoryRepository;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.swing.text.html.Option;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @CrossOrigin
 @RestController
@@ -34,13 +40,110 @@ public class BookControllerDto {
         this.mapper = mapper;
     }
 
+
+    public List<BookDto> getBooksList() {
+        List<Book> books = bookRepository.findAll();
+        List<BookDto> booksDto = new ArrayList<>();
+
+
+        for (Book b : books) {
+            booksDto.add(mapper.map(b));
+        }
+        return booksDto;
+    }
+
+
+    @GetMapping("books{excel_file_name}")
+    public void createXLSXSheet(@RequestParam(value = "excel_file_name") String excel_file_name) {
+
+        List<BookDto> books = getBooksList();
+
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        HSSFSheet sheet = workbook.createSheet(excel_file_name);
+
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setFontHeightInPoints((short) 10);
+        headerFont.setColor(IndexedColors.BLACK.getIndex());
+
+        CellStyle headerCellStyle = workbook.createCellStyle();
+        headerCellStyle.setFont(headerFont);
+
+        String[] columns = {"Title", "Author", "ISBN", "Category"};
+
+        Row headerRow = sheet.createRow(0);
+
+        for (int i = 0; i < columns.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(columns[i]);
+            cell.setCellStyle(headerCellStyle);
+        }
+
+        AtomicInteger counter = new AtomicInteger();
+
+        books.forEach(b -> {
+
+            counter.getAndIncrement();
+
+            HSSFRow row = sheet.createRow(counter.get());
+
+            HSSFCell cell1 = row.createCell(0);
+            HSSFCell cell2 = row.createCell(1);
+            HSSFCell cell3 = row.createCell(2);
+            HSSFCell cell4 = row.createCell(3);
+
+            cell1.setCellValue(b.getTitle());
+            cell2.setCellValue(b.getAuthor());
+            cell3.setCellValue(b.getIsbn());
+            cell4.setCellValue(b.getCategory());
+        });
+
+
+        for (int i = 0; i < columns.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        Date date = new Date();
+        long time = date.getTime();
+
+        try {
+            FileOutputStream fos = new FileOutputStream(excel_file_name + "_" + time + ".xlsx");
+            workbook.write(fos);
+
+            workbook.close();
+            fos.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    @PostMapping("upload")
+    public void openXLSXFile(@RequestParam("file") MultipartFile file) throws InvalidFormatException, IOException {
+
+        InputStream inputStream = new BufferedInputStream(file.getInputStream());
+        HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+
+      //  Workbook workbook = WorkbookFactory.create(file);
+        Sheet sheet = workbook.getSheetAt(0);
+
+        for (int columnIndex = 0; columnIndex< 4; columnIndex++){
+            for (int rowIndex = 0; rowIndex < sheet.getLastRowNum(); rowIndex++){
+                Cell cell = sheet.getRow(rowIndex).getCell(columnIndex);
+                System.out.println(cell);
+            }
+        }
+
+        workbook.close();
+
+    }
+
     @GetMapping("books")
     public ResponseEntity<List<BookDto>> getBooks() {
 
         List<Book> books = bookRepository.findAll();
         List<BookDto> booksDto = new ArrayList<>();
 
-       // books.forEach(book -> System.out.println(book.getAuthor()));
+        // books.forEach(book -> System.out.println(book.getAuthor()));
 
         for (Book b : books) {
             //  BookDto bookDto = mapper.map(b);
@@ -50,8 +153,7 @@ public class BookControllerDto {
         return new ResponseEntity<>(booksDto, HttpStatus.OK);
     }
 
-
-    @GetMapping("books/{isbn}")
+    @GetMapping("books{isbn}")
     public ResponseEntity<BookDto> getBookByIsbn(@RequestParam(value = "isbn") String isbn) {
 
         Optional<Book> bookOpt = bookRepository.findByIsbn(isbn);
@@ -77,7 +179,7 @@ public class BookControllerDto {
 //        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 //    }
 
-    @GetMapping("books/{category}")
+    @GetMapping("books{category}")
     public ResponseEntity<List<BookDto>> getBooksByCategory(@RequestParam(value = "category") String category) {
 
         Optional<Category> categoryOpt = categoryRepository.findByTitle(category);

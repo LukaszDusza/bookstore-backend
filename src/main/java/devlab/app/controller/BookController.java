@@ -1,6 +1,7 @@
 package devlab.app.controller;
 
 
+import devlab.app.auth.security.JWTAuthorizationFilter;
 import devlab.app.model.Book;
 import devlab.app.repository.BookRepository;
 import devlab.app.repository.CategoryRepository;
@@ -27,22 +28,27 @@ public class BookController {
         this.categoryRepository = categoryRepository;
     }
 
-        @GetMapping("books")
-    public ResponseEntity<List<Book>> getBooks() {
-        return new ResponseEntity<>(bookRepository.findAll(), HttpStatus.OK);
+//    @GetMapping("books")
+//    public ResponseEntity<List<Book>> getBooks() {
+//        return new ResponseEntity<>(bookRepository.findAll(), HttpStatus.OK);
+//    }
+
+    @GetMapping("books")
+    public List<Book> getBooks() {
+        return bookRepository.findAll();
     }
 
     @PostMapping("books")
-    public ResponseEntity<Book> addBook (
+    public ResponseEntity<Book> addBook(
             @RequestParam(value = "category") String category,
             @RequestParam(value = "title") String title,
             @RequestParam(value = "author") String author,
-            @RequestParam(value = "isbn") String isbn ) {
+            @RequestParam(value = "isbn") String isbn) {
 
         if (bookRepository.findByIsbn(isbn).isPresent()) {
-            return new ResponseEntity<>( HttpStatus.CONFLICT);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
 
-        } else if (categoryRepository.findByTitle(category).isPresent()){
+        } else if (categoryRepository.findByTitle(category).isPresent()) {
 
             //tworzenie oddzielnego konstruktora pod ten przypadek nie będzie wymagane.
             Book book = new Book();
@@ -53,7 +59,7 @@ public class BookController {
 
             return new ResponseEntity<>(bookRepository.save(book), HttpStatus.OK);
         }
-           return new ResponseEntity<>(HttpStatus.CONFLICT);
+        return new ResponseEntity<>(HttpStatus.CONFLICT);
     }
 
     @PutMapping("books")
