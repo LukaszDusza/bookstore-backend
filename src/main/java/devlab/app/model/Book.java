@@ -32,10 +32,10 @@ public class Book {
     private Category category;
 
 
-//    public Book(String title, String isbn, String author, Category category) {
-//        this.title = title;
-//        this.isbn = isbn;
-//        this.author = author;
-//        this.category = category;
-//    }
+    public Book(String title, String isbn, String author, Category category) {
+        this.title = title;
+        this.isbn = isbn;
+        this.author = author;
+        this.category = category;
+    }
 }

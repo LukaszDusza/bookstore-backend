@@ -47,6 +47,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
     }
 
 
+
     //private method //decompile token
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
 
@@ -69,7 +70,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         return null;
     }
 
-    private Map<String, String> getHeadersInfo(HttpServletRequest request) {
+    private void getHeadersInfo(HttpServletRequest request) {
 
         Map<String, String> map = new HashMap<>();
 
@@ -81,10 +82,10 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
             map.put(key, value);
         }
 
-        System.out.println();
+        System.out.println(" * * * * * * * * * * * *");
         map.forEach((k, v) -> System.out.println(k + ": " + v));
+        System.out.println(" * * * * * * * * * * * *");
 
-        return map;
     }
 
 }

@@ -45,10 +45,12 @@ public class BookControllerDto {
         List<Book> books = bookRepository.findAll();
         List<BookDto> booksDto = new ArrayList<>();
 
+//        for (Book b : books) {
+//            booksDto.add(mapper.map(b));
+//        }
 
-        for (Book b : books) {
-            booksDto.add(mapper.map(b));
-        }
+        books.forEach(b -> booksDto.add(mapper.map(b)));
+
         return booksDto;
     }
 
@@ -117,25 +119,7 @@ public class BookControllerDto {
             e.printStackTrace();
         }
     }
-    @PostMapping("upload")
-    public void openXLSXFile(@RequestParam("file") MultipartFile file) throws InvalidFormatException, IOException {
 
-        InputStream inputStream = new BufferedInputStream(file.getInputStream());
-        HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
-
-      //  Workbook workbook = WorkbookFactory.create(file);
-        Sheet sheet = workbook.getSheetAt(0);
-
-        for (int columnIndex = 0; columnIndex< 4; columnIndex++){
-            for (int rowIndex = 0; rowIndex < sheet.getLastRowNum(); rowIndex++){
-                Cell cell = sheet.getRow(rowIndex).getCell(columnIndex);
-                System.out.println(cell);
-            }
-        }
-
-        workbook.close();
-
-    }
 
     @GetMapping("books")
     public ResponseEntity<List<BookDto>> getBooks() {
@@ -255,6 +239,72 @@ public class BookControllerDto {
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+
+    @PostMapping("upload")
+    public void openXLSFile(@RequestParam("file") MultipartFile file) throws IOException {
+
+        InputStream inputStream = new BufferedInputStream(file.getInputStream());
+        HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+
+        Sheet sheet = workbook.getSheetAt(0);
+
+//        for(int collIndex = 0; collIndex < 4; collIndex++) {
+//            for(int rowIndex = 0; rowIndex < sheet.getLastRowNum(); rowIndex++) {
+//                Cell cell = sheet.getRow(rowIndex).getCell(collIndex);
+//                System.out.println(cell);
+//            }
+//        }
+
+        List<BookDto> books = new ArrayList<>();
+        for (int rowIndex = 1; rowIndex < sheet.getLastRowNum(); rowIndex++) {
+
+            List<String> props = new ArrayList<>();
+
+            for (int collIndex = 0; collIndex < 4; collIndex++) {
+
+                Cell cell = sheet.getRow(rowIndex).getCell(collIndex);
+                props.add(cell.toString());
+                //   System.out.println(cell);
+            }
+            BookDto book = new BookDto(
+                    props.get(0),
+                    props.get(1),
+                    props.get(2),
+                    props.get(3)
+            );
+            books.add(book);
+        }
+        workbook.close();
+        inputStream.close();
+
+     //   books.forEach(System.out::println);
+
+        addBooks(books);
+
+      //  return books;
+    }
+
+
+    public void addBooks(List<BookDto> bookDtos) {
+
+        List<Book> books = new ArrayList<>();
+
+        bookDtos.forEach(bd -> {
+            Optional<Category> cat = categoryRepository.findByTitle(bd.getCategory());
+
+            cat.ifPresent(category -> books.add(
+                    new Book(
+                            bd.getTitle(),
+                            bd.getIsbn(),
+                            bd.getAuthor(),
+                            category
+                    )
+            ));
+        });
+
+        bookRepository.saveAll(books);
     }
 
 }
