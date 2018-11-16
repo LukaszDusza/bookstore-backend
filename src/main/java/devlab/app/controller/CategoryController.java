@@ -1,8 +1,6 @@
 package devlab.app.controller;
 
 
-import devlab.app.commons.Mapper;
-import devlab.app.dto.CategoryDto;
 import devlab.app.mapper.CategoryMapper;
 import devlab.app.model.Category;
 import devlab.app.repository.CategoryRepository;
@@ -10,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 

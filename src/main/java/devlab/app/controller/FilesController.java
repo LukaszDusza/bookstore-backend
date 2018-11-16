@@ -2,37 +2,26 @@ package devlab.app.controller;
 
 
 import devlab.app.model.MyFile;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.core.io.support.ResourcePatternUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.HttpMediaTypeException;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.websocket.server.PathParam;
-import java.io.File;
-import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/files/")
-public class UploadController {
-
-//    private ResourceLoader resourceLoader;
-//
-//    public UploadController(ResourceLoader resourceLoader) {
-//        this.resourceLoader = resourceLoader;
-//    }
+@RequestMapping("/api/v1/books/")
+public class FilesController {
 
     private static String UPLOADED_FOLDER = new File("").getAbsolutePath() + "//uploads//";
 
@@ -66,7 +55,7 @@ public class UploadController {
 //        return ResourcePatternUtils.getResourcePatternResolver(resourceLoader).getResources(pattern);
 //    }
 
-    @GetMapping("upload")
+    @GetMapping("storage")
     public List<MyFile> getResources() {
 
         createDirectory();
@@ -85,6 +74,7 @@ public class UploadController {
         return new ArrayList<>();
     }
 
+
     public void createDirectory() {
         Path path = Paths.get(UPLOADED_FOLDER);
         //if directory exists?
@@ -98,13 +88,24 @@ public class UploadController {
         }
     }
 
-    @DeleteMapping("upload/{file}")
+    @DeleteMapping("delete/{file}")
     public void delete(@PathVariable("file") String fileName) {
 
         File file = new File(UPLOADED_FOLDER + fileName);
         if (file.exists()) {
             file.delete();
         }
+    }
+
+    @GetMapping("/download")
+    public void downloadFile(@RequestParam String filename, HttpServletResponse response) throws IOException {
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "attachment;filename=" + filename);
+        response.setStatus(HttpServletResponse.SC_OK);
+
+        InputStream is = new FileInputStream(filename);
+        FileCopyUtils.copy(is, response.getOutputStream());
+        response.flushBuffer();
     }
 
 }

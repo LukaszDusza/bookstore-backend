@@ -26,4 +26,5 @@ public class AppApplication {
         return new CommonsMultipartResolver();
     }
 
+
 }
